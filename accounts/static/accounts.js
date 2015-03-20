@@ -6,7 +6,10 @@ var initialize = function(navigator, user, token, urls) {
     navigator.id.watch({
         loggedInUser: user,
         onlogin: function(assertion){
-            $.post('login url', {assertion: assertion, csrfmiddlewaretoken: token})
+            $.post(
+                urls.login,
+                {assertion: assertion, csrfmiddlewaretoken: token}
+            )
             .done(function(){ window.location.reload(); })
             .fail(function(){ navigator.id.logout(); });
         },
