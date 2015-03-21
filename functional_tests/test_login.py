@@ -16,9 +16,16 @@ class LoginTest(FunctionalTest):
 
         self.switch_to_new_window('To-Do')
 
-        self.wait_for_element_with_id('id_logout')
-        navbar = self.browser.find_element_by_css_selector('.navbar')
-        self.assertIn('kai@mockmyid.com', navbar.text)
+        self.wait_to_be_logged_in()
+
+        self.browser.refresh()
+        self.wait_to_be_logged_in()
+
+        self.browser.find_element_by_id('id_logout').click()
+        self.wait_to_be_logged_out()
+
+        self.browser.refresh()
+        self.wait_to_be_logged_out()
 
     def switch_to_new_window(self, text_in_title):
         retries = 60
@@ -33,5 +40,18 @@ class LoginTest(FunctionalTest):
 
     def wait_for_element_with_id(self, element_id):
         WebDriverWait(self.browser, timeout=30).until(
-            lambda b: b.find_element_by_id(element_id)
+            lambda b: b.find_element_by_id(element_id),
+            'Could not find element with id {element_id}. Page text was:\n{page_text}'.format(
+                element_id=element_id, page_text=self.browser.find_element_by_tag_name('body').text
+            )
         )
+
+    def wait_to_be_logged_in(self):
+        self.wait_for_element_with_id('id_logout')
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+        self.assertIn('kai@mockmyid.com', navbar.text)
+
+    def wait_to_be_logged_out(self):
+        self.wait_for_element_with_id('id_login')
+        navbar = self.browser.find_element_by_css_selector('.navbar')
+        self.assertNotIn('kai@mockmyid', navbar.text)
